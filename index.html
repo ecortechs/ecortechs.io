@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eCortechs — Brain-Inspired Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06060e;
+  --surface: #0d0d1a;
+  --accent: #6e56ff;
+  --accent2: #00e5a0;
+  --accent3: #ff6b9d;
+  --text: #e8e6f0;
+  --text-dim: #7a7890;
+  --glow: rgba(110, 86, 255, 0.35);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Neural canvas ── */
+#neural-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ── Gradient overlays ── */
+.gradient-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  pointer-events: none;
+}
+.gradient-orb.one {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(110,86,255,0.15), transparent 70%);
+  top: -10%; left: -5%;
+  animation: float1 20s ease-in-out infinite;
+}
+.gradient-orb.two {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(0,229,160,0.1), transparent 70%);
+  bottom: -10%; right: -5%;
+  animation: float2 25s ease-in-out infinite;
+}
+.gradient-orb.three {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,107,157,0.08), transparent 70%);
+  top: 40%; left: 50%;
+  animation: float3 18s ease-in-out infinite;
+}
+
+@keyframes float1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(60px,40px); } }
+@keyframes float2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-50px,-30px); } }
+@keyframes float3 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-30px,50px); } }
+
+/* ── Content wrapper ── */
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Nav ── */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.logo-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.logo-text span {
+  color: var(--accent);
+}
+
+.nav-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(110,86,255,0.3);
+  border-radius: 100px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(110,86,255,0.05);
+}
+
+/* ── Hero ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6rem 2rem 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.2s;
+}
+
+.hero-tag::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--accent2);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+h1 {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.4s;
+}
+
+h1 .gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-width: 600px;
+  font-weight: 400;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.6s;
+}
+
+/* ── Coming soon section ── */
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.8s;
+}
+
+.coming-soon-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cta-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.cta-primary {
+  background: linear-gradient(135deg, var(--accent), #8b6fff);
+  color: #fff;
+  box-shadow: 0 4px 30px var(--glow);
+}
+
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px var(--glow);
+}
+
+.cta-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.cta-secondary:hover {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.03);
+}
+
+/* ── Pillars ── */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 5rem auto;
+  padding: 0 2rem;
+}
+
+.pillar {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.4s ease;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.pillar:nth-child(1) { animation-delay: 1s; }
+.pillar:nth-child(2) { animation-delay: 1.15s; }
+.pillar:nth-child(3) { animation-delay: 1.3s; }
+
+.pillar:hover {
+  border-color: rgba(110,86,255,0.2);
+  background: rgba(110,86,255,0.03);
+  transform: translateY(-4px);
+}
+
+.pillar-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  font-size: 1.4rem;
+}
+
+.pillar-icon.brain { background: rgba(110,86,255,0.12); color: var(--accent); }
+.pillar-icon.chip { background: rgba(0,229,160,0.12); color: var(--accent2); }
+.pillar-icon.robot { background: rgba(255,107,157,0.12); color: var(--accent3); }
+
+.pillar h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.01em;
+}
+
+.pillar p {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ── Divider ── */
+.divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  margin: 0 auto 4rem;
+  opacity: 0.4;
+}
+
+/* ── Founders ── */
+.founders-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem 5rem;
+  text-align: center;
+}
+
+.founders-section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 3rem;
+}
+
+.founders {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.founder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
+}
+.founder:nth-child(1) { animation-delay: 1.4s; }
+.founder:nth-child(2) { animation-delay: 1.55s; }
+.founder:nth-child(3) { animation-delay: 1.7s; }
+.founder:nth-child(4) { animation-delay: 1.85s; }
+
+.founder-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(110,86,255,0.2), rgba(0,229,160,0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.08);
+}
+
+.founder-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.founder-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.founder-role {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Email signup ── */
+.email-form {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 420px;
+  width: 100%;
+}
+
+.email-form input {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.email-form input::placeholder { color: var(--text-dim); }
+.email-form input:focus { border-color: var(--accent); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .hero { padding: 4rem 1.5rem 3rem; }
+  .pillars { grid-template-columns: 1fr; max-width: 400px; }
+  .founders { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+  .email-form { flex-direction: column; }
+  .email-form input, .cta { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .founders { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="neural-canvas"></canvas>
+
+<div class="gradient-orb one"></div>
+<div class="gradient-orb two"></div>
+<div class="gradient-orb three"></div>
+
+<div class="content">
+
+  <nav>
+    <a class="logo" href="#">
+      <div class="logo-icon">
+        <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Battery body -->
+          <rect x="4" y="6" width="32" height="38" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="rgba(110,86,255,0.06)"/>
+          <!-- Battery terminal -->
+          <rect x="14" y="1" width="12" height="5" rx="2" fill="url(#logo-grad)" opacity="0.7"/>
+          <!-- Neural nodes inside battery -->
+          <circle cx="20" cy="16" r="3" fill="#6e56ff"/>
+          <circle cx="12" cy="26" r="2.5" fill="#00e5a0"/>
+          <circle cx="28" cy="26" r="2.5" fill="#ff6b9d"/>
+          <circle cx="16" cy="35" r="2" fill="#00e5a0" opacity="0.7"/>
+          <circle cx="24" cy="35" r="2" fill="#6e56ff" opacity="0.7"/>
+          <!-- Neural connections -->
+          <line x1="20" y1="16" x2="12" y2="26" stroke="#6e56ff" stroke-width="1.2" opacity="0.5"/>
+          <line x1="20" y1="16" x2="28" y2="26" stroke="#6e56ff" stroke-width="1.2" opacity="0.5"/>
+          <line x1="12" y1="26" x2="16" y2="35" stroke="#00e5a0" stroke-width="1" opacity="0.4"/>
+          <line x1="28" y1="26" x2="24" y2="35" stroke="#ff6b9d" stroke-width="1" opacity="0.4"/>
+          <line x1="12" y1="26" x2="28" y2="26" stroke="#00e5a0" stroke-width="0.8" opacity="0.25"/>
+          <line x1="16" y1="35" x2="24" y2="35" stroke="#6e56ff" stroke-width="0.8" opacity="0.25"/>
+          <!-- Energy charge indicator -->
+          <rect x="8" y="38" width="24" height="3" rx="1.5" fill="none" stroke="url(#logo-grad)" stroke-width="0.8" opacity="0.3"/>
+          <rect x="8" y="38" width="16" height="3" rx="1.5" fill="url(#logo-grad)" opacity="0.35"/>
+          <defs>
+            <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="46">
+              <stop stop-color="#6e56ff"/>
+              <stop offset="1" stop-color="#00e5a0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text"><span>e</span>Cortechs</div>
+    </a>
+  </nav>
+
+  <section class="hero">
+    <h1>Brain-Like Intelligence at the <span class="gradient">Edge</span></h1>
+    <p class="hero-sub">
+      We build brain-inspired computing — software and hardware co-designed
+      for real-time intelligence in robotics and edge devices.
+    </p>
+
+    <div class="coming-soon">
+      <div class="coming-soon-text">Coming Soon</div>
+      <form class="email-form" action="https://formspree.io/f/mbdeeooq" method="POST" onsubmit="handleSubmit(event)">
+        <input type="email" name="email" placeholder="Enter your email for updates" required>
+        <button type="submit" class="cta cta-primary">Notify Me</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon brain">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5.5 4 7.5L12 22l3-5.5c2-2 4-4.5 4-7.5a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg>
+      </div>
+      <h3>Brain-Inspired Models</h3>
+      <p>Biologically plausible neural architectures that learn efficiently with minimal data and power.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon chip">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>
+      </div>
+      <h3>Custom Silicon</h3>
+      <p>Hardware-software co-design for ultra-low power neuromorphic processing on the edge.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon robot">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+      </div>
+      <h3>Edge &amp; Robotics</h3>
+      <p>Real-time adaptive intelligence for autonomous systems, deployed where it matters.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="founders-section">
+    <h2>Powered By</h2>
+    <div class="founders">
+      <div class="founder">
+        <div class="founder-avatar"><img src="images/anders_lansner.jpg" alt="Anders Lansner"></div>
+        <div class="founder-name">Anders Lansner</div>
+        <div class="founder-role">Co-Founder</div>
+      </div>
+      <div class="founder">
+        <div class="founder-avatar"><img src="images/artur_podobas.jpg" alt="Artur Podobas"></div>
+        <div class="founder-name">Artur Podobas</div>
+        <div class="founder-role">Co-Founder</div>
+      </div>
+      <div class="founder">
+        <div class="founder-avatar"><img src="images/pawel_herman.jpg" alt="Pawel Herman"></div>
+        <div class="founder-name">Pawel Herman</div>
+        <div class="founder-role">Co-Founder</div>
+      </div>
+      <div class="founder">
+        <div class="founder-avatar"><img src="images/ahmed_hemani.jpg" alt="Ahmed Hemani"></div>
+        <div class="founder-name">Ahmed Hemani</div>
+        <div class="founder-role">Co-Founder</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2026 eCortechs. All rights reserved.
+  </footer>
+
+</div>
+
+<script>
+// ── Animated neural network background ──
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height, nodes, mouse;
+
+function init() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+  mouse = { x: width / 2, y: height / 2 };
+
+  const count = Math.min(Math.floor((width * height) / 12000), 120);
+  nodes = [];
+  for (let i = 0; i < count; i++) {
+    nodes.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 2 + 1,
+      color: ['#6e56ff', '#00e5a0', '#ff6b9d'][Math.floor(Math.random() * 3)]
+    });
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, width, height);
+
+  for (let i = 0; i < nodes.length; i++) {
+    const a = nodes[i];
+    a.x += a.vx;
+    a.y += a.vy;
+    if (a.x < 0 || a.x > width) a.vx *= -1;
+    if (a.y < 0 || a.y > height) a.vy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+    ctx.fillStyle = a.color;
+    ctx.globalAlpha = 0.6;
+    ctx.fill();
+
+    for (let j = i + 1; j < nodes.length; j++) {
+      const b = nodes[j];
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 150) {
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = a.color;
+        ctx.globalAlpha = (1 - dist / 150) * 0.15;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', init);
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+init();
+animate();
+
+// ── Form handler ──
+function handleSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const input = form.querySelector('input');
+  const btn = form.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'Accept': 'application/json' }
+  }).then(r => {
+    if (r.ok) {
+      btn.textContent = 'Subscribed!';
+      btn.style.background = 'linear-gradient(135deg, #00e5a0, #00c080)';
+      input.value = '';
+    } else {
+      btn.textContent = 'Error — retry';
+      btn.style.background = 'linear-gradient(135deg, #ff6b9d, #ff4070)';
+    }
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = 'Notify Me'; btn.style.background = ''; }, 3000);
+  }).catch(() => {
+    btn.textContent = 'Error — retry';
+    btn.style.background = 'linear-gradient(135deg, #ff6b9d, #ff4070)';
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = 'Notify Me'; btn.style.background = ''; }, 3000);
+  });
+}
+</script>
+
+</body>
+</html>
